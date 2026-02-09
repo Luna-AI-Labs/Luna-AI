@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+@theme {
+  /* Custom shadows for glassmorphism - compatible with shadow-* utilities */
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --shadow-glass-hover: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px rgba(244, 63, 94, 0.25);
+
+  /* Custom colors - integrating with Tailwind's color system */
+  --color-background: hsl(0 0% 98%);
+  --color-foreground: hsl(240 10% 3.9%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(240 10% 3.9%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(240 10% 3.9%);
+  --color-primary: hsl(340 82% 52%);
+  --color-primary-foreground: hsl(355.7 100% 97.3%);
+  --color-secondary: hsl(340 70% 96%);
+  --color-secondary-foreground: hsl(240 5.9% 10%);
+  --color-muted: hsl(240 4.8% 95.9%);
+  --color-muted-foreground: hsl(240 3.8% 46.1%);
+  --color-accent: hsl(340 60% 90%);
+  --color-accent-foreground: hsl(240 5.9% 10%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+  --color-border: hsl(240 5.9% 90%);
+  --color-input: hsl(240 5.9% 90%);
+  --color-ring: hsl(340 82% 52%);
+
+  /* Luna mode-specific colors */
+  --color-period-50: #FFF1F2;
+  --color-period-100: #FFE4E6;
+  --color-period-200: #FECDD3;
+  --color-period-300: #FDA4AF;
+  --color-period-400: #FB7185;
+  --color-period-500: #F43F5E;
+  --color-period-600: #E11D48;
+
+  --color-conceive-50: #F0FDFA;
+  --color-conceive-100: #CCFBF1;
+  --color-conceive-200: #99F6E4;
+  --color-conceive-300: #5EEAD4;
+  --color-conceive-400: #2DD4BF;
+  --color-conceive-500: #14B8A6;
+  --color-conceive-600: #0D9488;
+
+  --color-pregnancy-50: #FAF5FF;
+  --color-pregnancy-100: #F3E8FF;
+  --color-pregnancy-200: #E9D5FF;
+  --color-pregnancy-300: #D8B4FE;
+  --color-pregnancy-400: #C084FC;
+  --color-pregnancy-500: #A855F7;
+  --color-pregnancy-600: #9333EA;
+
+  --color-perimenopause-50: #F5F3FF;
+  --color-perimenopause-100: #EDE9FE;
+  --color-perimenopause-200: #DDD6FE;
+  --color-perimenopause-300: #C4B5FD;
+  --color-perimenopause-400: #A78BFA;
+  --color-perimenopause-500: #8B5CF6;
+  --color-perimenopause-600: #7C3AED;
+
+  /* Border radius */
+  --radius-lg: 1rem;
+  --radius-md: calc(1rem - 2px);
+  --radius-sm: calc(1rem - 4px);
+  --radius-4xl: 2rem;
+  --radius-5xl: 2.5rem;
+
+  /* Font families */
+  --font-sans: 'Outfit', 'Inter', system-ui, sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+
+  /* Animations */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Keyframes */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Base styles */
+@layer base {
+  :root {
+    --radius: 1rem;
+  }
+
+  /* Mode theme overrides via data attribute */
+  [data-mode="conceive"] {
+    --color-primary: hsl(170 80% 40%);
+    --color-primary-foreground: hsl(0 0% 100%);
+    --color-secondary: hsl(165 60% 95%);
+    --color-accent: hsl(165 50% 90%);
+    --color-ring: hsl(170 80% 40%);
+  }
+
+  [data-mode="pregnancy"] {
+    --color-primary: hsl(270 70% 60%);
+    --color-primary-foreground: hsl(0 0% 100%);
+    --color-secondary: hsl(270 50% 96%);
+    --color-accent: hsl(45 90% 60%);
+    --color-ring: hsl(270 70% 60%);
+  }
+
+  [data-mode="perimenopause"] {
+    --color-primary: hsl(140 40% 50%);
+    --color-primary-foreground: hsl(0 0% 100%);
+    --color-secondary: hsl(140 30% 96%);
+    --color-accent: hsl(260 40% 70%);
+    --color-ring: hsl(140 40% 50%);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Component utilities - using proper Tailwind v4 syntax */
+@utility glass {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-glass);
+}
+
+@utility glass-card {
+  border-radius: var(--radius-4xl);
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-glass);
+  transition: all 0.3s ease;
+  padding: 1.5rem;
+
+  &:hover {
+    box-shadow: var(--shadow-glass-hover);
+    transform: translateY(-2px);
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+@utility btn-premium {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+@utility input-premium {
+  display: flex;
+  height: 3rem;
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--color-input);
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-ring);
+  }
+}
+
+@utility animate-float {
+  animation: var(--animate-float);
+}

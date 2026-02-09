@@ -1,0 +1,195 @@
+/* Symptom Logger Styles */
+
+.symptom-logger {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--background);
+}
+
+.symptom-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--background);
+    z-index: 10;
+}
+
+.symptom-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.back-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: none;
+    background: var(--secondary);
+    color: var(--foreground);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: var(--muted);
+}
+
+.save-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: none;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.selected-count {
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.1));
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.symptom-categories {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 5rem;
+}
+
+.category-section {
+    border-bottom: 1px solid var(--border);
+}
+
+.category-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.category-header:hover {
+    background: var(--secondary);
+}
+
+.category-header.expanded {
+    background: hsl(var(--primary) / 0.05);
+}
+
+.category-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.category-count {
+    font-size: 0.75rem;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+}
+
+.expand-icon {
+    font-size: 1.25rem;
+    color: var(--muted-foreground);
+}
+
+.symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 0.75rem 1rem 1rem;
+    overflow: hidden;
+}
+
+.symptom-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    border-radius: 0.75rem;
+    border: 2px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.symptom-btn:hover {
+    border-color: var(--primary);
+    background: hsl(var(--primary) / 0.05);
+}
+
+.symptom-btn.selected {
+    border-color: var(--primary);
+    background: hsl(var(--primary) / 0.15);
+}
+
+.symptom-emoji {
+    font-size: 1.5rem;
+}
+
+.symptom-label {
+    font-size: 0.75rem;
+    text-align: center;
+    color: var(--foreground);
+}
+
+.symptom-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background: var(--background);
+    border-top: 1px solid var(--border);
+    z-index: 10;
+}
+
+.save-symptoms-btn {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px hsl(var(--primary) / 0.3);
+}
+
+.save-symptoms-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px hsl(var(--primary) / 0.4);
+}
+
+.save-symptoms-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}

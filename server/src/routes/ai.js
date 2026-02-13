@@ -5,8 +5,12 @@
 import express from 'express';
 import { geminiService } from '../services/gemini.js';
 import { track } from '../services/opik.js';
+import { x402Middleware } from '../middleware/x402.js';
 
 const router = express.Router();
+
+// Protect all AI routes with x402
+router.use(x402Middleware);
 
 // Wrap functions with Opik tracing
 const trackedExtractSymptoms = track(geminiService.extractSymptoms, 'extractSymptoms');
@@ -66,7 +70,7 @@ router.post('/insight', async (req, res) => {
         });
     } catch (error) {
         console.error('Insight generation error:', error);
-        res.status(500).json({ error: 'Failed to generate insight' });
+        res.status(500).json({ error: 'Failed to generate insight', details: error.message });
     }
 });
 
@@ -91,7 +95,7 @@ router.post('/chat', async (req, res) => {
         });
     } catch (error) {
         console.error('Chat error:', error);
-        res.status(500).json({ error: 'Failed to generate response' });
+        res.status(500).json({ error: 'Failed to generate response', details: error.message });
     }
 });
 
@@ -116,7 +120,7 @@ router.post('/explain', async (req, res) => {
         });
     } catch (error) {
         console.error('Explain error:', error);
-        res.status(500).json({ error: 'Failed to generate explanation' });
+        res.status(500).json({ error: 'Failed to generate explanation', details: error.message });
     }
 });
 

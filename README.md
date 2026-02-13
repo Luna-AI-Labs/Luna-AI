@@ -70,7 +70,7 @@ Luna AI integrates **Opik** to ensure every AI interaction is safe and accountab
 |-------|------------|
 | **Frontend** | React 18, TypeScript, Vite |
 | **Styling** | Tailwind CSS, Framer Motion |
-| **Authentication** | Clerk |
+| **Authentication** | Clerk, Privy |
 | **AI Observability** | Opik SDK |
 | **Payments** | x402 Micropayments |
 | **State** | React Hooks, LocalStorage |
@@ -98,6 +98,13 @@ cd client
 npm install
 ```
 
+### Install Server Dependencies
+
+```bash
+cd ../server
+npm install
+```
+
 ### Environment Variables
 
 Create a `.env` file in the `client` directory:
@@ -106,12 +113,18 @@ Create a `.env` file in the `client` directory:
 # Clerk Authentication
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
 
+# Privy Authentication
+VITE_PRIVY_APP_ID=your_privy_app_id
+
 # Opik AI Observability
 VITE_OPIK_API_KEY=your_opik_api_key
-VITE_OPIK_WORKSPACE=your_workspace
+VITE_OPIK_WORKSPACE=your_opik_workspace
 
 # API Configuration (optional)
 VITE_API_URL=http://localhost:3001
+```
+
+For the server, create a `.env` file in the `server` directory (see `.env.example`).
 ```
 
 ### Run Development Server

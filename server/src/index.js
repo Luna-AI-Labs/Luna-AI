@@ -9,6 +9,7 @@ import authRoutes from './routes/auth.js';
 import cycleRoutes from './routes/cycle.js';
 import modeRoutes from './routes/modes.js';
 import predictionRoutes from './routes/prediction.js';
+import userRoutes from './routes/user.js';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use('/api/cycle', cycleRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/modes', modeRoutes);
 app.use('/api/prediction', predictionRoutes);
+app.use('/api/user', userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

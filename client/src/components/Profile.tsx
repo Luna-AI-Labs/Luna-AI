@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { User, Bell, Shield, Heart, LogOut, ChevronRight, Moon, Globe, Sparkles } from 'lucide-react';
+import { User, Bell, Shield, Heart, LogOut, ChevronRight, Moon, Globe, Sparkles, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from './ui/Toast';
+import { useAuth } from '../context/AuthContext';
 
 type AppMode = 'period' | 'conceive' | 'pregnancy' | 'perimenopause';
 
@@ -19,10 +20,65 @@ const MODE_OPTIONS: { id: AppMode; label: string; emoji: string; description: st
 ];
 
 export default function Profile({ currentMode = 'period', onModeChange }: ProfileProps) {
+    const { logout, wallet, dbUser } = useAuth();
     const { i18n } = useTranslation();
     const { showToast } = useToast();
     const [notifications, setNotifications] = useState(true);
     const [showModeSelector, setShowModeSelector] = useState(false);
+
+    // Profile State
+    const [profile, setProfile] = useState<any>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState({ firstName: '', avgCycleLength: 28 });
+
+    // Fetch Profile
+    useEffect(() => {
+        if (!dbUser) return;
+        fetch(`http://localhost:3001/api/user/profile`, {
+            headers: { 'x-user-id': dbUser.id.toString() }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.profile) {
+                    setProfile(data.profile);
+                    setEditForm({
+                        firstName: data.profile.onboarding_data?.firstName || '',
+                        avgCycleLength: data.profile.avg_cycle_length || 28
+                    });
+                }
+            })
+            .catch(err => console.error('Failed to fetch profile', err));
+    }, [dbUser]);
+
+    const handleSaveProfile = async () => {
+        try {
+            const res = await fetch('http://localhost:3001/api/user/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-id': dbUser?.id.toString()
+                },
+                body: JSON.stringify({
+                    ...profile, // Keep existing fields
+                    onboardingData: { ...profile?.onboarding_data, firstName: editForm.firstName }, // Update name in JSONB
+                    avgCycleLength: parseInt(editForm.avgCycleLength.toString()) // Update cycle length col
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('Profile updated!', 'success');
+                setIsEditing(false);
+                // Refresh profile locally
+                setProfile({
+                    ...profile,
+                    avg_cycle_length: parseInt(editForm.avgCycleLength.toString()),
+                    onboarding_data: { ...profile?.onboarding_data, firstName: editForm.firstName }
+                });
+            }
+        } catch (e) {
+            showToast('Failed to save', 'error');
+        }
+    };
 
     const toggleLanguage = () => {
         const nextLang = i18n.language === 'en' ? 'zh' : i18n.language === 'zh' ? 'fr' : 'en';
@@ -55,7 +111,23 @@ export default function Profile({ currentMode = 'period', onModeChange }: Profil
         {
             title: 'Account',
             items: [
-                { icon: User, label: 'Personal Info', action: () => { } },
+                {
+                    icon: User,
+                    label: 'Personal Info',
+                    sublabel: 'Tap to edit',
+                    action: () => setIsEditing(true)
+                },
+                {
+                    icon: CreditCard,
+                    label: 'Wallet Address',
+                    sublabel: wallet ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}` : 'No wallet connected',
+                    action: () => {
+                        if (wallet) {
+                            navigator.clipboard.writeText(wallet);
+                            showToast('Address copied to clipboard!', 'info');
+                        }
+                    }
+                },
                 { icon: Globe, label: `Language (${i18n.language.toUpperCase()})`, action: toggleLanguage },
             ]
         },
@@ -76,16 +148,78 @@ export default function Profile({ currentMode = 'period', onModeChange }: Profil
     ];
 
     return (
-        <div className="pb-20">
+        <div className="pb-20 relative">
+            {/* Edit Profile Modal */}
+            {isEditing && (
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <motion.div
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="bg-background w-full max-w-md rounded-2xl p-6 shadow-2xl border border-border"
+                    >
+                        <h3 className="text-xl font-bold mb-4">Edit Profile</h3>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-sm font-medium text-muted-foreground">Display Name</label>
+                                <input
+                                    type="text"
+                                    value={editForm.firstName}
+                                    onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                                    className="w-full mt-1 p-3 rounded-xl bg-secondary/50 border-none focus:ring-2 focus:ring-primary/50"
+                                    placeholder="Enter your name"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-muted-foreground">Cycle Length (Days)</label>
+                                <input
+                                    type="number"
+                                    value={editForm.avgCycleLength}
+                                    onChange={(e) => setEditForm({ ...editForm, avgCycleLength: parseInt(e.target.value) || 28 })}
+                                    className="w-full mt-1 p-3 rounded-xl bg-secondary/50 border-none focus:ring-2 focus:ring-primary/50"
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Used for predictions. Standard is 28 days.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 mt-8">
+                            <button
+                                onClick={() => setIsEditing(false)}
+                                className="flex-1 py-3 rounded-xl bg-secondary font-medium hover:bg-secondary/80 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveProfile}
+                                className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
             {/* Profile Header */}
             <div className="flex flex-col items-center mb-8">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent p-1 shadow-xl mb-4">
                     <div className="w-full h-full rounded-full bg-background flex items-center justify-center overflow-hidden">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=LunaUser" alt="User" className="w-full h-full" />
+                        <img
+                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.onboarding_data?.firstName || 'User'}`}
+                            alt="User"
+                            className="w-full h-full"
+                        />
                     </div>
                 </div>
-                <h2 className="text-2xl font-bold">Luna User</h2>
-                <p className="text-muted-foreground">Premium Member</p>
+                <h2 className="text-2xl font-bold">
+                    {profile?.onboarding_data?.firstName || 'Luna User'}
+                </h2>
+                <p className="text-muted-foreground">
+                    Avg Cycle: {profile?.avg_cycle_length || 28} Days
+                </p>
 
                 {/* Current Mode Badge */}
                 <div
@@ -110,8 +244,8 @@ export default function Profile({ currentMode = 'period', onModeChange }: Profil
                                         key={itemIdx}
                                         onClick={'action' in item ? item.action : undefined}
                                         className={`w-full flex items-center justify-between p-3 rounded-lg transition-all text-left group ${'highlight' in item && item.highlight
-                                                ? 'bg-primary/5 hover:bg-primary/10 border border-primary/20'
-                                                : 'hover:bg-secondary/50'
+                                            ? 'bg-primary/5 hover:bg-primary/10 border border-primary/20'
+                                            : 'hover:bg-secondary/50'
                                             }`}
                                     >
                                         <div className="flex items-center gap-3">
@@ -166,8 +300,8 @@ export default function Profile({ currentMode = 'period', onModeChange }: Profil
                                             key={mode.id}
                                             onClick={() => handleModeChange(mode.id)}
                                             className={`p-3 rounded-xl text-left transition-all ${currentMode === mode.id
-                                                    ? 'ring-2 ring-primary bg-primary/10'
-                                                    : 'bg-secondary/30 hover:bg-secondary/50'
+                                                ? 'ring-2 ring-primary bg-primary/10'
+                                                : 'bg-secondary/30 hover:bg-secondary/50'
                                                 }`}
                                         >
                                             <div className="text-2xl mb-1">{mode.emoji}</div>
@@ -183,15 +317,14 @@ export default function Profile({ currentMode = 'period', onModeChange }: Profil
 
                 <button
                     onClick={() => {
-                        if (confirm('Are you sure you want to reset onboarding? This will clear your local preferences.')) {
-                            localStorage.removeItem('onboardingComplete');
-                            window.location.reload();
+                        if (confirm('Are you sure you want to log out?')) {
+                            logout();
                         }
                     }}
-                    className="w-full flex items-center justify-center gap-2 p-4 text-red-500 hover:bg-red-50 rounded-xl transition-colors font-medium"
+                    className="w-full flex items-center justify-center gap-2 p-4 text-red-500 hover:bg-red-50 rounded-xl transition-colors font-medium border border-red-100 mt-4"
                 >
                     <LogOut className="w-5 h-5" />
-                    Reset Onboarding
+                    Log Out
                 </button>
             </div>
         </div>

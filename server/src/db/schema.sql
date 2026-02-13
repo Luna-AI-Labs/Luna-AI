@@ -7,8 +7,9 @@
 
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE,
+  password_hash VARCHAR(255),
+  privy_id VARCHAR(255) UNIQUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -16,6 +17,17 @@ CREATE TABLE IF NOT EXISTS user_settings (
   user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   current_mode VARCHAR(50) DEFAULT 'period', -- period, conceive, pregnancy, perimenopause
   theme_preference VARCHAR(20) DEFAULT 'system',
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_profiles (
+  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  birth_year INTEGER,
+  avg_cycle_length INTEGER DEFAULT 28,
+  avg_period_length INTEGER DEFAULT 5,
+  cycle_regularity VARCHAR(50), -- regular, irregular, unknown
+  onboarding_data JSONB DEFAULT '{}', -- Flexible storage for goals, symptoms, conditions, etc.
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

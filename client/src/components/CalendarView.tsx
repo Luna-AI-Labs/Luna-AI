@@ -1,4 +1,4 @@
-import { format, parseISO, isToday, isSameMonth, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay } from 'date-fns';
+import { format, parseISO, isToday, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isSameDay } from 'date-fns';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from './ui/Toast';
@@ -155,11 +155,11 @@ export default function CalendarView({ onDateSelect, onEditPeriod, onPeriodLogge
 
     const getDayStyle = (type: string | null) => {
         switch (type) {
-            case 'period': return 'bg-gradient-to-br from-pink-400 to-rose-500 text-white shadow-lg shadow-pink-500/30';
-            case 'fertile': return 'bg-gradient-to-br from-teal-300 to-cyan-400 text-teal-900 shadow-lg shadow-teal-500/20';
-            case 'ovulation': return 'bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-lg shadow-emerald-500/30';
-            case 'predicted': return 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 border-2 border-dashed border-pink-400';
-            default: return 'bg-secondary/30 hover:bg-secondary/50';
+            case 'period': return 'bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-rose-500/40 ring-1 ring-white/20';
+            case 'fertile': return 'bg-gradient-to-br from-purple-400 to-indigo-500 text-white shadow-lg shadow-indigo-500/30 ring-1 ring-white/20'; // Changed to Purple/Indigo for "Magic" feel
+            case 'ovulation': return 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-orange-500/40 ring-2 ring-white/50 scale-110';
+            case 'predicted': return 'bg-rose-50 dark:bg-rose-900/10 text-rose-500 border-2 border-dashed border-rose-300 dark:border-rose-700/50';
+            default: return 'bg-secondary/30 hover:bg-secondary/50 text-foreground/80';
         }
     };
 
@@ -301,9 +301,9 @@ export default function CalendarView({ onDateSelect, onEditPeriod, onPeriodLogge
                     <div className="text-right">
                         {getDayType(selectedDate) && (
                             <span className={`text-xs font-medium px-2 py-1 rounded-full ${getDayType(selectedDate) === 'period' ? 'bg-pink-100 text-pink-700' :
-                                    getDayType(selectedDate) === 'fertile' ? 'bg-teal-100 text-teal-700' :
-                                        getDayType(selectedDate) === 'ovulation' ? 'bg-emerald-100 text-emerald-700' :
-                                            'bg-pink-50 text-pink-600'
+                                getDayType(selectedDate) === 'fertile' ? 'bg-teal-100 text-teal-700' :
+                                    getDayType(selectedDate) === 'ovulation' ? 'bg-emerald-100 text-emerald-700' :
+                                        'bg-pink-50 text-pink-600'
                                 }`}>
                                 {getDayType(selectedDate) === 'period' ? '🌸 Period Day' :
                                     getDayType(selectedDate) === 'fertile' ? '✨ Fertile' :

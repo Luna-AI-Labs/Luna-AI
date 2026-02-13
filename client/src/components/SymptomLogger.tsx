@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { useToast } from './ui/Toast';
 import { Spinner } from './ui/Spinner';
@@ -159,8 +159,8 @@ export default function SymptomLogger({ onSave, onClose, currentMode = 'period' 
                                 key={mood.id}
                                 onClick={() => setSelectedMood(selectedMood === mood.id ? null : mood.id)}
                                 className={`flex flex-col items-center p-2 rounded-xl transition-all ${selectedMood === mood.id
-                                        ? 'bg-primary/10 ring-2 ring-primary'
-                                        : 'bg-secondary/30 hover:bg-secondary/50'
+                                    ? 'bg-primary/10 ring-2 ring-primary'
+                                    : 'bg-secondary/30 hover:bg-secondary/50'
                                     }`}
                             >
                                 <span className="text-2xl">{mood.emoji}</span>
@@ -186,8 +186,8 @@ export default function SymptomLogger({ onSave, onClose, currentMode = 'period' 
                                 key={level.id}
                                 onClick={() => setSelectedEnergy(selectedEnergy === level.id ? null : level.id)}
                                 className={`flex items-center justify-center gap-2 p-3 rounded-xl transition-all ${selectedEnergy === level.id
-                                        ? 'bg-yellow-100 dark:bg-yellow-900/30 ring-2 ring-yellow-500'
-                                        : 'bg-secondary/30 hover:bg-secondary/50'
+                                    ? 'bg-yellow-100 dark:bg-yellow-900/30 ring-2 ring-yellow-500'
+                                    : 'bg-secondary/30 hover:bg-secondary/50'
                                     }`}
                             >
                                 <span className="text-xl">{level.emoji}</span>
@@ -214,8 +214,8 @@ export default function SymptomLogger({ onSave, onClose, currentMode = 'period' 
                                     key={flow.id}
                                     onClick={() => setSelectedFlow(selectedFlow === flow.id ? null : flow.id)}
                                     className={`flex flex-col items-center p-3 rounded-xl transition-all ${selectedFlow === flow.id
-                                            ? 'bg-pink-100 dark:bg-pink-900/30 ring-2 ring-pink-500'
-                                            : 'bg-secondary/30 hover:bg-secondary/50'
+                                        ? 'bg-pink-100 dark:bg-pink-900/30 ring-2 ring-pink-500'
+                                        : 'bg-secondary/30 hover:bg-secondary/50'
                                         }`}
                                 >
                                     <span className="text-lg">{flow.emoji}</span>
@@ -247,8 +247,8 @@ export default function SymptomLogger({ onSave, onClose, currentMode = 'period' 
                                 key={symptom.id}
                                 onClick={() => toggleSymptom(symptom.id)}
                                 className={`flex flex-col items-center p-3 rounded-xl transition-all ${selectedSymptoms.includes(symptom.id)
-                                        ? 'bg-primary/10 ring-2 ring-primary'
-                                        : 'bg-secondary/30 hover:bg-secondary/50'
+                                    ? 'bg-primary/10 ring-2 ring-primary'
+                                    : 'bg-secondary/30 hover:bg-secondary/50'
                                     }`}
                             >
                                 <span className="text-xl">{symptom.emoji}</span>

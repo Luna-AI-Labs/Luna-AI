@@ -34,7 +34,7 @@ const SYMPTOM_EMOJIS: Record<string, string> = {
     default: '•'
 };
 
-export default function RecentLogs({ onLogClick, limit = 7 }: RecentLogsProps) {
+export default function RecentLogs({ limit = 7 }: RecentLogsProps) {
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [expandedId, setExpandedId] = useState<number | null>(null);

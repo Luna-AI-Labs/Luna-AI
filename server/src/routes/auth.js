@@ -143,4 +143,73 @@ router.post('/guest', async (req, res) => {
     }
 });
 
+/**
+ * POST /api/auth/privy
+ * Sync Privy user with backend
+ */
+router.post('/privy', async (req, res) => {
+    try {
+        const { user } = req.body;
+
+        if (!user || (!user.id && !user.privy_id)) {
+            return res.status(400).json({ error: 'User data required' });
+        }
+
+        const privyId = user.id || user.privy_id;
+        // Handle email structure from Privy (can be string or object)
+        const email = user.email ? (typeof user.email === 'string' ? user.email : user.email.address) : null;
+
+        // 1. Check if user exists by privy_id
+        let dbUserRes = await db.query('SELECT * FROM users WHERE privy_id = $1', [privyId]);
+        let dbUser = dbUserRes.rows[0];
+
+        if (dbUser) {
+            // User found by Privy ID - return it
+            return res.json({
+                success: true,
+                user: dbUser
+            });
+        }
+
+        // 2. If not found by Privy ID, check by email (Legacy account linking)
+        if (email) {
+            dbUserRes = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+            dbUser = dbUserRes.rows[0];
+
+            if (dbUser) {
+                // Link privy_id to existing email user
+                await db.query('UPDATE users SET privy_id = $1 WHERE id = $2', [privyId, dbUser.id]);
+                dbUser.privy_id = privyId; // Update local object
+
+                return res.json({
+                    success: true,
+                    user: dbUser
+                });
+            }
+        }
+
+        // 3. Create new user
+        const result = await db.query(
+            'INSERT INTO users (privy_id, email, created_at) VALUES ($1, $2, NOW()) RETURNING *',
+            [privyId, email]
+        );
+        dbUser = result.rows[0];
+
+        // Create default settings for new user
+        await db.query(
+            'INSERT INTO user_settings (user_id, current_mode) VALUES ($1, $2)',
+            [dbUser.id, 'period']
+        );
+
+        res.json({
+            success: true,
+            user: dbUser
+        });
+
+    } catch (error) {
+        console.error('Privy auth error:', error);
+        res.status(500).json({ error: 'Failed to sync user' });
+    }
+});
+
 export default router;

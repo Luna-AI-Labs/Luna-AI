@@ -242,8 +242,8 @@ export default function PerimenopauseDashboard({ data, currentMode = 'perimenopa
             <button
                 onClick={() => setShowLogForm(!showLogForm)}
                 className={`w-full py-3 rounded-xl font-medium transition-all ${showLogForm
-                        ? 'bg-gray-500 text-white'
-                        : 'bg-secondary/50 hover:bg-secondary text-foreground'
+                    ? 'bg-gray-500 text-white'
+                    : 'bg-secondary/50 hover:bg-secondary text-foreground'
                     }`}
             >
                 {showLogForm ? '✕ Close Daily Log' : '📝 Open Detailed Daily Log'}
@@ -271,8 +271,8 @@ export default function PerimenopauseDashboard({ data, currentMode = 'perimenopa
                                             key={level.id}
                                             onClick={() => setHotFlashSeverity(hotFlashSeverity === level.id ? null : level.id)}
                                             className={`py-3 rounded-xl text-sm font-medium transition-all ${hotFlashSeverity === level.id
-                                                    ? 'ring-2 ring-amber-500'
-                                                    : 'bg-secondary/50 hover:bg-secondary'
+                                                ? 'ring-2 ring-amber-500'
+                                                : 'bg-secondary/50 hover:bg-secondary'
                                                 }`}
                                             style={{
                                                 backgroundColor: hotFlashSeverity === level.id ? `${level.color}20` : undefined
@@ -297,8 +297,8 @@ export default function PerimenopauseDashboard({ data, currentMode = 'perimenopa
                                             key={level.id}
                                             onClick={() => setMoodLevel(moodLevel === level.id ? null : level.id)}
                                             className={`flex-1 py-3 rounded-xl transition-all ${moodLevel === level.id
-                                                    ? 'bg-purple-100 dark:bg-purple-900/30 ring-2 ring-purple-500'
-                                                    : 'bg-secondary/50 hover:bg-secondary'
+                                                ? 'bg-purple-100 dark:bg-purple-900/30 ring-2 ring-purple-500'
+                                                : 'bg-secondary/50 hover:bg-secondary'
                                                 }`}
                                         >
                                             <span className="text-2xl block">{level.emoji}</span>
@@ -319,8 +319,8 @@ export default function PerimenopauseDashboard({ data, currentMode = 'perimenopa
                                             key={level.id}
                                             onClick={() => setEnergyLevel(energyLevel === level.id ? null : level.id)}
                                             className={`flex-1 py-3 rounded-xl transition-all ${energyLevel === level.id
-                                                    ? 'bg-yellow-100 dark:bg-yellow-900/30 ring-2 ring-yellow-500'
-                                                    : 'bg-secondary/50 hover:bg-secondary'
+                                                ? 'bg-yellow-100 dark:bg-yellow-900/30 ring-2 ring-yellow-500'
+                                                : 'bg-secondary/50 hover:bg-secondary'
                                                 }`}
                                         >
                                             <span className="text-2xl block">{level.emoji}</span>
@@ -341,8 +341,8 @@ export default function PerimenopauseDashboard({ data, currentMode = 'perimenopa
                                             key={quality.id}
                                             onClick={() => setSleepQuality(sleepQuality === quality.id ? null : quality.id)}
                                             className={`flex-shrink-0 px-4 py-3 rounded-xl transition-all ${sleepQuality === quality.id
-                                                    ? 'bg-blue-100 dark:bg-blue-900/30 ring-2 ring-blue-500'
-                                                    : 'bg-secondary/50 hover:bg-secondary'
+                                                ? 'bg-blue-100 dark:bg-blue-900/30 ring-2 ring-blue-500'
+                                                : 'bg-secondary/50 hover:bg-secondary'
                                                 }`}
                                         >
                                             <span className="text-xl block">{quality.emoji}</span>
@@ -380,8 +380,8 @@ export default function PerimenopauseDashboard({ data, currentMode = 'perimenopa
                                                         <button
                                                             key={symptom.id}
                                                             className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all ${selectedSymptoms.includes(symptom.id)
-                                                                    ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-500 text-amber-700 dark:text-amber-300'
-                                                                    : 'bg-background/50 border-border hover:bg-secondary/50'
+                                                                ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-500 text-amber-700 dark:text-amber-300'
+                                                                : 'bg-background/50 border-border hover:bg-secondary/50'
                                                                 }`}
                                                             onClick={() => toggleSymptom(symptom.id)}
                                                         >
@@ -444,8 +444,11 @@ export default function PerimenopauseDashboard({ data, currentMode = 'perimenopa
 
             {/* AI Insights */}
             <InsightsPanel
-                mode="perimenopause"
-                cycleData={{ daysSincePeriod, variability: data.cycleVariability }}
+                mode={currentMode as any || 'perimenopause'}
+                cycleData={{
+                    daysSincePeriod: daysSincePeriod || undefined,
+                    variability: data.cycleVariability || undefined
+                }}
             />
         </div>
     );

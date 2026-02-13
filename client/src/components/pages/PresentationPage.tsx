@@ -12,7 +12,7 @@ interface Slide {
 
 export default function PresentationPage() {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [_isFullscreen, setIsFullscreen] = useState(false);
     const [isAutoPlay, setIsAutoPlay] = useState(false);
 
     const slides: Slide[] = [

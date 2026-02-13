@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useUser, SignInButton, SignUpButton } from '@clerk/clerk-react';
+import { useAuth } from '../context/AuthContext';
 import { ChevronRight, Lock, HelpCircle, Check, Sparkles } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
@@ -70,7 +70,7 @@ const MODE_STEPS: Record<Mode, string[]> = {
 };
 
 export default function Onboarding({ onComplete }: OnboardingProps) {
-    const { user, isLoaded } = useUser();
+    const { user, login } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
     const [data, setData] = useState<OnboardingData>({
         firstName: '',
@@ -82,12 +82,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         consents: { privacy: false, dataUsage: false }
     });
 
-    // Auto-fill from Clerk user
+    // Auto-fill from User
     useEffect(() => {
-        if (isLoaded && user?.firstName) {
-            setData(d => ({ ...d, firstName: user.firstName || '' }));
-        }
-    }, [isLoaded, user]);
+        // Privy user object might not have firstName directly on root like Clerk
+        // We'll skip auto-fill for now or Map it if available
+    }, [user]);
 
     // Calculate total steps based on mode - always return full list
     const getSteps = (): string[] => {
@@ -986,24 +985,34 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         </p>
 
                         <div className="w-full space-y-3">
-                            <SignUpButton mode="modal">
-                                <Button className="w-full bg-gradient-to-r from-primary to-accent" size="lg">
-                                    Create Account ✨
-                                </Button>
-                            </SignUpButton>
+                            {!user ? (
+                                <>
+                                    <Button onClick={login} className="w-full bg-gradient-to-r from-primary to-accent" size="lg">
+                                        Sign Up / Log In ✨
+                                    </Button>
+                                    <p className="text-xs text-muted-foreground mt-4">
+                                        By continuing, you verify that you are at least 13 years old and agree to our Terms of Service and Privacy Policy.
+                                    </p>
+                                </>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-primary/5 rounded-xl border border-primary/20">
+                                        <p className="font-medium text-primary">✓ Logged in as {user.email?.address || user.wallet?.address?.slice(0, 6) + '...' || 'User'}</p>
+                                    </div>
+                                    <Button onClick={handleComplete} className="w-full py-6 text-lg" size="lg">
+                                        Complete Setup <ChevronRight className="w-5 h-5 ml-2" />
+                                    </Button>
+                                </div>
+                            )}
 
-                            <SignInButton mode="modal">
-                                <Button variant="outline" className="w-full" size="lg">
-                                    I already have an account
-                                </Button>
-                            </SignInButton>
-
-                            <button
-                                onClick={handleComplete}
-                                className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-4"
-                            >
-                                Skip for now →
-                            </button>
+                            {!user && (
+                                <button
+                                    onClick={handleComplete}
+                                    className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-4"
+                                >
+                                    Skip for now →
+                                </button>
+                            )}
                         </div>
                     </motion.div>
                 );

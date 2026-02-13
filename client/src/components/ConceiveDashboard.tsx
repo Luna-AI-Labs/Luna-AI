@@ -42,7 +42,6 @@ const OPK_RESULTS = [
 
 export default function ConceiveDashboard({ data, currentMode = 'conceive', onModeChange }: ConceiveDashboardProps) {
     const { showToast } = useToast();
-    const [insight, setInsight] = useState<string>('');
     const [mockBBT, setMockBBT] = useState<{ day: number; temp: number }[]>([]);
     const [selectedMucus, setSelectedMucus] = useState<string | null>(null);
     const [selectedOPK, setSelectedOPK] = useState<string | null>(null);
@@ -53,7 +52,6 @@ export default function ConceiveDashboard({ data, currentMode = 'conceive', onMo
 
     useEffect(() => {
         if (data) {
-            fetchInsight();
             if (!data.bbtData) {
                 const generated = Array.from({ length: data.cycleDay }, (_, i) => ({
                     day: i + 1,
@@ -64,15 +62,7 @@ export default function ConceiveDashboard({ data, currentMode = 'conceive', onMo
         }
     }, [data]);
 
-    const fetchInsight = async () => {
-        if (data?.fertileWindow) {
-            setInsight("🔥 You're in your fertile window! This is the best time to try for a baby. Track intercourse to optimize your chances.");
-        } else if (data && data.daysUntilOvulation <= 3) {
-            setInsight("🌟 Ovulation is approaching! Your fertile window starts soon. Look for egg-white cervical mucus as a sign.");
-        } else {
-            setInsight("📊 Keep tracking daily! Consistent BBT logging helps predict your fertile window more accurately.");
-        }
-    };
+
 
     const handleQuickLog = async () => {
         setIsSaving(true);
@@ -136,8 +126,8 @@ export default function ConceiveDashboard({ data, currentMode = 'conceive', onMo
             >
                 <div
                     className={`p-4 text-white text-center ${data.fertileWindow ? 'bg-gradient-to-r from-teal-500 to-emerald-500' :
-                            data.daysUntilOvulation <= 3 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
-                                'bg-gradient-to-r from-gray-500 to-slate-500'
+                        data.daysUntilOvulation <= 3 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
+                            'bg-gradient-to-r from-gray-500 to-slate-500'
                         }`}
                 >
                     <div className="text-4xl mb-2">
@@ -174,8 +164,8 @@ export default function ConceiveDashboard({ data, currentMode = 'conceive', onMo
                 animate={{ opacity: 1 }}
                 onClick={() => setShowLogForm(!showLogForm)}
                 className={`w-full py-4 rounded-xl font-medium text-white shadow-lg transition-all ${showLogForm
-                        ? 'bg-gray-500'
-                        : 'bg-gradient-to-r from-teal-500 to-emerald-500 shadow-teal-500/30 hover:scale-[1.02]'
+                    ? 'bg-gray-500'
+                    : 'bg-gradient-to-r from-teal-500 to-emerald-500 shadow-teal-500/30 hover:scale-[1.02]'
                     }`}
             >
                 {showLogForm ? '✕ Close' : '➕ Quick Log Today\'s Data'}
@@ -219,8 +209,8 @@ export default function ConceiveDashboard({ data, currentMode = 'conceive', onMo
                                             key={type.id}
                                             onClick={() => setSelectedMucus(selectedMucus === type.id ? null : type.id)}
                                             className={`flex-shrink-0 px-3 py-2 rounded-xl text-sm font-medium transition-all ${selectedMucus === type.id
-                                                    ? 'ring-2 ring-teal-500 bg-teal-50 dark:bg-teal-900/30'
-                                                    : 'bg-secondary/50 hover:bg-secondary'
+                                                ? 'ring-2 ring-teal-500 bg-teal-50 dark:bg-teal-900/30'
+                                                : 'bg-secondary/50 hover:bg-secondary'
                                                 }`}
                                         >
                                             <span className="text-lg mr-1">{type.emoji}</span>
@@ -241,8 +231,8 @@ export default function ConceiveDashboard({ data, currentMode = 'conceive', onMo
                                             key={result.id}
                                             onClick={() => setSelectedOPK(selectedOPK === result.id ? null : result.id)}
                                             className={`py-3 rounded-xl text-sm font-medium transition-all ${selectedOPK === result.id
-                                                    ? 'ring-2 ring-teal-500 bg-teal-50 dark:bg-teal-900/30'
-                                                    : 'bg-secondary/50 hover:bg-secondary'
+                                                ? 'ring-2 ring-teal-500 bg-teal-50 dark:bg-teal-900/30'
+                                                : 'bg-secondary/50 hover:bg-secondary'
                                                 }`}
                                         >
                                             <span className="text-xl block">{result.emoji}</span>
@@ -256,8 +246,8 @@ export default function ConceiveDashboard({ data, currentMode = 'conceive', onMo
                             <button
                                 onClick={() => setLoggedIntercourse(!loggedIntercourse)}
                                 className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${loggedIntercourse
-                                        ? 'bg-pink-500 text-white'
-                                        : 'bg-secondary/50 hover:bg-secondary'
+                                    ? 'bg-pink-500 text-white'
+                                    : 'bg-secondary/50 hover:bg-secondary'
                                     }`}
                             >
                                 <span>💕</span>
@@ -313,12 +303,12 @@ export default function ConceiveDashboard({ data, currentMode = 'conceive', onMo
                             <div
                                 key={i}
                                 className={`flex-shrink-0 w-12 h-16 rounded-xl flex flex-col items-center justify-center gap-0.5 border-2 transition-all ${isToday
-                                        ? 'border-primary bg-primary/10 scale-110'
-                                        : isOvulation
-                                            ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/30'
-                                            : isFertile
-                                                ? 'border-teal-300 bg-teal-50/50 dark:bg-teal-900/20'
-                                                : 'border-border bg-background/50'
+                                    ? 'border-primary bg-primary/10 scale-110'
+                                    : isOvulation
+                                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/30'
+                                        : isFertile
+                                            ? 'border-teal-300 bg-teal-50/50 dark:bg-teal-900/20'
+                                            : 'border-border bg-background/50'
                                     }`}
                             >
                                 <span className="text-[10px] font-bold opacity-70">

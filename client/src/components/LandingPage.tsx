@@ -39,7 +39,7 @@ export default function LandingPage({ onStart, onLogin, onNavigate }: LandingPag
                     <a href="#blog" className="hover:text-primary transition-colors">Blog</a>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" onClick={onLogin}>Log In</Button>
+                    <Button variant="ghost" onClick={onLogin}>Log In / Sign Up</Button>
                     <Button variant="primary" className="shadow-glow" onClick={onStart}>Get Started</Button>
                 </div>
             </nav>

@@ -4,6 +4,7 @@
 
 import express from 'express';
 import { db } from '../db/database.js';
+import { predictionService } from '../services/predictionService.js';
 
 const router = express.Router();
 
@@ -296,7 +297,11 @@ router.get('/periods', async (req, res) => {
         // Calculate predictions based on latest period
         if (periods.length > 0) {
             const lastPeriod = periods[0];
-            const avgCycleLength = 28; // Could calculate from history
+
+            // Get user's average cycle length
+            const profileRes = await db.query('SELECT avg_cycle_length FROM user_profiles WHERE user_id = $1', [userId]);
+            const avgCycleLength = profileRes.rows[0]?.avg_cycle_length || 28;
+
             const lastStart = new Date(lastPeriod.start_date);
 
             // Predict next period
@@ -306,8 +311,11 @@ router.get('/periods', async (req, res) => {
                 predictedPeriod.push(day.toISOString().split('T')[0]);
             }
 
-            // Calculate fertile window (days 10-16 typically)
-            const ovulationDay = Math.round(avgCycleLength / 2);
+            // Calculate fertile window (days 10-16 typically, relative to cycle length)
+            // Ovulation is typically 14 days before the *next* period
+            const ovulationDay = avgCycleLength - 14;
+
+            // Fertile window: 5 days before ovulation + ovulation day + 1 day after
             for (let i = ovulationDay - 5; i <= ovulationDay + 1; i++) {
                 const day = new Date(lastStart.getTime() + i * 24 * 60 * 60 * 1000);
                 fertileWindow.push(day.toISOString().split('T')[0]);

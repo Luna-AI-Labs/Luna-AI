@@ -16,6 +16,8 @@ interface InsightsPanelProps {
         phase?: string;
         week?: number;
         recentSymptoms?: string[];
+        daysSincePeriod?: number; // For Perimenopause
+        variability?: string;     // For Perimenopause
     };
 }
 

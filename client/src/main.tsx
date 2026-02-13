@@ -1,27 +1,32 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ClerkProvider } from '@clerk/clerk-react'
+import { PrivyProvider } from '@privy-io/react-auth'
 import './index.css'
 import './i18n'
 import App from './App.tsx'
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+const PRIVY_APP_ID = import.meta.env.VITE_PRIVY_APP_ID
 
-if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing Clerk Publishable Key')
+if (!PRIVY_APP_ID) {
+  throw new Error('Missing Privy App ID')
 }
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ClerkProvider
-      publishableKey={PUBLISHABLE_KEY}
-      afterSignOutUrl="/"
-      signInFallbackRedirectUrl="/"
-      signUpFallbackRedirectUrl="/"
+    <PrivyProvider
+      appId={PRIVY_APP_ID}
+      config={{
+        appearance: {
+          theme: 'dark',
+          accentColor: '#676FFF',
+          logo: '/logo.png', // Fallback to a generic logo if needed
+        },
+        embeddedWallets: {
+          createOnLogin: 'users-without-wallets',
+        },
+      }}
     >
       <App />
-      {/* Clerk CAPTCHA placeholder for bot protection */}
-      <div id="clerk-captcha" />
-    </ClerkProvider>
+    </PrivyProvider>
   </StrictMode>,
 )

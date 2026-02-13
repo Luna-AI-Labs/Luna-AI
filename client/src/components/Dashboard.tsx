@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import InsightsPanel from './InsightsPanel';
@@ -48,7 +48,7 @@ function FloatingParticles({ color }: { color: string }) {
     );
 }
 
-export default function Dashboard({ cycleStatus }: DashboardProps) {
+export default function Dashboard({ cycleStatus, currentMode }: DashboardProps) {
     const [pulseScale, setPulseScale] = useState(1);
 
     // Continuous breathing animation
@@ -336,7 +336,13 @@ export default function Dashboard({ cycleStatus }: DashboardProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
             >
-                <InsightsPanel cycleDay={cycleStatus.cycleDay} phase={cycleStatus.phase} />
+                <InsightsPanel
+                    mode={currentMode as any || 'period'}
+                    cycleData={{
+                        cycleDay: cycleStatus.cycleDay,
+                        phase: cycleStatus.phase
+                    }}
+                />
             </motion.div>
         </div>
     );

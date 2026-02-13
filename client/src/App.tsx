@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useUser, SignedIn, SignedOut, SignInButton, SignUpButton } from '@clerk/clerk-react';
+
 import { AnimatePresence } from 'framer-motion';
 
 import Dashboard from './components/Dashboard';
@@ -20,6 +20,7 @@ import PrivacyPage from './components/pages/PrivacyPage';
 import ContactPage from './components/pages/ContactPage';
 import PresentationPage from './components/pages/PresentationPage';
 import { ToastProvider, useToast } from './components/ui/Toast';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
 
 type View =
@@ -39,106 +40,109 @@ type AppMode = 'period' | 'conceive' | 'pregnancy' | 'perimenopause';
 function AppContent() {
   useTranslation();
   const { showToast } = useToast();
+  const { authenticated, user, login, logout, ready, dbUser } = useAuth();
   const [currentView, setCurrentView] = useState<View>('landing');
   const [currentMode, setCurrentMode] = useState<AppMode>('period');
   const [cycleStatus, setCycleStatus] = useState<any>(null);
-  const [cycleData, setCycleData] = useState<any>(null);
-  const [isSaving, setIsSaving] = useState(false);
+
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showHistoricalInput, setShowHistoricalInput] = useState(false);
 
   useEffect(() => {
-    // Check if user has completed onboarding
-    const onboardingComplete = localStorage.getItem('onboardingComplete');
-    if (!onboardingComplete) {
-      setShowOnboarding(true);
-    } else {
+    if (ready && authenticated) {
+      setCurrentView('dashboard');
+      fetchCurrentMode();
+    } else if (ready && !authenticated) {
+      setCurrentView('landing');
+    }
+  }, [ready, authenticated]);
+
+  // Fetch cycle data
+  const fetchCycleStatus = async () => {
+    if (!dbUser) return;
+
+    try {
+      const response = await fetch('http://localhost:3001/api/cycle/status', {
+        headers: {
+          'x-user-id': dbUser.id.toString()
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setCycleStatus(data);
+        if (!data.hasData) {
+          setShowOnboarding(true);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch status:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (dbUser) {
       fetchCycleStatus();
     }
+  }, [dbUser]);
 
-    fetchCurrentMode();
-    fetchCycleData();
-  }, []);
+  const handleOnboardingComplete = async (data: any) => {
+    if (!dbUser) return;
 
-  const handleOnboardingComplete = (data: any) => {
-    localStorage.setItem('onboardingComplete', 'true');
-    setCurrentMode(data.goal as AppMode);
-    setShowOnboarding(false);
-    // Here we would typically save the user profile data
-    console.log('Onboarding data:', data);
-    fetchCycleStatus();
+    try {
+      // 1. Save User Profile
+      await fetch('http://localhost:3001/api/user/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': dbUser.id.toString()
+        },
+        body: JSON.stringify({
+          birthYear: data.birthYear,
+          avgCycleLength: data.avgCycleLength,
+          avgPeriodLength: data.avgPeriodLength,
+          cycleRegularity: data.cycleRegularity,
+          onboardingData: data // Store full data blob for flexibility
+        })
+      });
+
+      // 2. Save last period
+      await fetch('http://localhost:3001/api/cycle/period', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': dbUser.id.toString()
+        },
+        body: JSON.stringify({
+          startDate: data.lastPeriodStart,
+          endDate: data.lastPeriodEnd
+        })
+      });
+
+      // 2. Save historical data if any
+      if (data.historicalPeriods?.length > 0) {
+        await fetch('http://localhost:3001/api/cycle/periods/history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-user-id': dbUser.id.toString()
+          },
+          body: JSON.stringify({ periods: data.historicalPeriods })
+        });
+      }
+
+      setShowOnboarding(false);
+      fetchCycleStatus();
+      showToast('Profile set up successfully! 🎉', 'success');
+    } catch (error) {
+      console.error('Onboarding error:', error);
+      showToast('Failed to save profile', 'error');
+    }
   };
 
   // Update theme when mode changes
   useEffect(() => {
     document.documentElement.setAttribute('data-mode', currentMode);
   }, [currentMode]);
-
-  const fetchCycleStatus = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/cycle/status', {
-        headers: { 'x-user-id': '1' }
-      });
-      const data = await response.json();
-      setCycleStatus(data);
-    } catch (error) {
-      console.log('Server not running, using demo data');
-      setCycleStatus({
-        hasData: true,
-        cycleDay: 14,
-        phase: 'ovulatory',
-        avgCycleLength: 28,
-        daysUntilPeriod: 14,
-        daysUntilOvulation: 0,
-        fertileWindow: true
-      });
-    } finally {
-      // Loading complete
-    }
-  };
-
-  const fetchCycleData = async () => {
-    // Demo cycle data for calendar - in production, fetch from API
-    const today = new Date();
-
-    // Generate demo period dates (5 days starting 14 days ago)
-    const periodDays = [];
-    const periodStart = new Date(today);
-    periodStart.setDate(today.getDate() - 14);
-    for (let i = 0; i < 5; i++) {
-      const d = new Date(periodStart);
-      d.setDate(periodStart.getDate() + i);
-      periodDays.push(d.toISOString().split('T')[0]);
-    }
-
-    // Predicted next period (in 14 days)
-    const predictedPeriod = [];
-    const nextPeriod = new Date(today);
-    nextPeriod.setDate(today.getDate() + 14);
-    for (let i = 0; i < 5; i++) {
-      const d = new Date(nextPeriod);
-      d.setDate(nextPeriod.getDate() + i);
-      predictedPeriod.push(d.toISOString().split('T')[0]);
-    }
-
-    // Ovulation (today in demo)
-    const ovulationDates = [today.toISOString().split('T')[0]];
-
-    // Fertile window (-5 to +1 from ovulation)
-    const fertileWindow = [];
-    for (let i = -5; i <= 1; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      fertileWindow.push(d.toISOString().split('T')[0]);
-    }
-
-    setCycleData({
-      periodDays,
-      predictedPeriod,
-      ovulationDates,
-      fertileWindow
-    });
-  };
 
   const fetchCurrentMode = async () => {
     try {
@@ -161,14 +165,15 @@ function AppContent() {
 
 
 
-  const handleSymptomSave = async (symptoms: string[], modeData?: Record<string, any>) => {
-    setIsSaving(true);
+  const saveSymptomLog = async (symptoms: string[], modeData: any) => {
+    if (!dbUser) return;
+
     try {
       const response = await fetch('http://localhost:3001/api/cycle/log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': '1'
+          'x-user-id': dbUser.id.toString()
         },
         body: JSON.stringify({
           symptoms,
@@ -189,8 +194,6 @@ function AppContent() {
     } catch (error) {
       showToast('Saved locally - will sync when online', 'info');
       setCurrentView('dashboard');
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -210,11 +213,8 @@ function AppContent() {
   if (currentView === 'landing') {
     return (
       <LandingPage
-        onStart={() => {
-          setShowOnboarding(true);
-          setCurrentView('dashboard');
-        }}
-        onLogin={() => setCurrentView('dashboard')}
+        onStart={login}
+        onLogin={login}
         onNavigate={(page: string) => setCurrentView(page as View)}
       />
     );
@@ -259,7 +259,7 @@ function AppContent() {
         {currentView === 'symptoms' && (
           <SymptomLogger
             key="symptoms"
-            onSave={handleSymptomSave}
+            onSave={saveSymptomLog}
             onClose={() => setCurrentView('dashboard')}
             currentMode={currentMode}
           />
@@ -295,9 +295,11 @@ function AppContent() {
 // App wrapper with providers
 function App() {
   return (
-    <ToastProvider>
-      <AppContent />
-    </ToastProvider>
+    <AuthProvider>
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
+    </AuthProvider>
   );
 }
 

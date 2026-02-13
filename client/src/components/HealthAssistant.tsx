@@ -7,6 +7,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
+import { useWallets } from '@privy-io/react-auth';
+import { PaymentService } from '../services/PaymentService';
 
 type AppMode = 'period' | 'conceive' | 'pregnancy' | 'perimenopause';
 
@@ -51,6 +54,9 @@ const MODE_CONFIG: Record<AppMode, {
 
 export default function HealthAssistant({ cycleStatus, currentMode = 'period' }: HealthAssistantProps) {
     const config = MODE_CONFIG[currentMode];
+    const { wallets, user } = useAuth(); // useAuth wraps usePrivy, but we need dbUser
+    const { dbUser } = useAuth();
+    const wallet = wallets && wallets.length > 0 ? wallets[0] : null;
 
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -83,7 +89,7 @@ export default function HealthAssistant({ cycleStatus, currentMode = 'period' }:
     }, [currentMode, cycleStatus]);
 
     const handleSend = async () => {
-        if (!input.trim()) return;
+        if (!input.trim() || !dbUser) return;
 
         const userMessage: Message = {
             role: 'user',
@@ -96,14 +102,17 @@ export default function HealthAssistant({ cycleStatus, currentMode = 'period' }:
         setIsTyping(true);
 
         try {
-            const response = await fetch('http://localhost:3001/api/ai/chat', {
+            const response = await PaymentService.secureFetch('http://localhost:3001/api/ai/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-id': dbUser.id.toString()
+                },
                 body: JSON.stringify({
                     message: input,
                     context: { ...cycleStatus, mode: currentMode }
                 })
-            });
+            }, wallet);
 
             const data = await response.json();
 
